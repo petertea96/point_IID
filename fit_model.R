@@ -2,8 +2,8 @@
 library(dplyr)
 library(rstan)
 
-source('./src/collect_data.R')
-atp_data <- readRDS(file = "./data/atp_data.rds")
+source('/Users/petertea/tennis_analytics/projects/point_IID/src/collect_data.R')
+atp_data <- readRDS(file = "/Users/petertea/tennis_analytics/projects/point_IID/data/atp_data.rds")
 
 
 # -- Convert to STAN FORMAT -----
@@ -22,7 +22,7 @@ saveRDS(atp_model_fit, file = "./model/atp_model.RDS")
 library(cmdstanr)
 library(data.table)
 
-stan.model <- cmdstan_model('./model/stan_model.stan')
+stan.model <- cmdstan_model('/Users/petertea/tennis_analytics/projects/point_IID/model/stan_model.stan')
 
 # -- ADVI version the fastest MCMC to fit
 fit_atp_model <- stan.model$variational(
@@ -32,12 +32,12 @@ fit_atp_model <- stan.model$variational(
 
 # -- Convert object types to stanfit
 atp.stanfit <- rstan::read_stan_csv(fit_atp_model$output_files())
-saveRDS(atp.stanfit, file = "./model/advi_atp_model.RDS")
+saveRDS(atp.stanfit, file = "/Users/petertea/tennis_analytics/projects/point_IID/model/advi_atp_model.RDS")
 
 
 
 # -- Repeat for WTA ----
-wta_data <- readRDS(file = "./data/wta_data.rds")
+wta_data <- readRDS(file = "/Users/petertea/tennis_analytics/projects/point_IID/data/wta_data.rds")
 wta_stan_data <- format_stan_data(relevant_data = wta_data)
 
 fit_wta_model <- stan.model$variational(
@@ -46,5 +46,5 @@ fit_wta_model <- stan.model$variational(
 )
 
 wta.stanfit <- rstan::read_stan_csv(fit_wta_model$output_files())
-saveRDS(wta.stanfit, file = "./model/advi_wta_model.RDS")
+saveRDS(wta.stanfit, file = "/Users/petertea/tennis_analytics/projects/point_IID/model/advi_wta_model.RDS")
 

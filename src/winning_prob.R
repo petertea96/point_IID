@@ -328,14 +328,14 @@ prob_win_match_a <- function(win_serve_rally_prob_a, win_serve_rally_prob_b,
 ###########################################################################
 # --> Plot the likely set scores b/n player A and player B
 
-get_most_likely_set_scores <- function(serve_win_df){
+get_most_likely_set_scores <- function(serve_win_df, player1, player2){
   # posterior_serve_win_dat: data w/ 2 columns of serve win probs
   # player1: Name of player 1 (aesthetic)
   # player2: Name of player 2 (aesthetic)
   # tournament: Name of tournament (aesthetic)
   
-  player1 <- levels(serve_win_df$Player)[1]
-  player2 <- levels(serve_win_df$Player)[2]
+  #player1 <- levels(serve_win_df$Player)[1]
+  #player2 <- levels(serve_win_df$Player)[2]
   
   posterior_serve_win_dat <- cbind(serve_win_df %>%
                                      filter(Player == player1) %>%
@@ -397,14 +397,14 @@ get_most_likely_set_scores <- function(serve_win_df){
 }
 
 
-get_most_likely_match_scores <- function(serve_win_df){
+get_most_likely_match_scores <- function(serve_win_df, player1, player2){
   # posterior_serve_win_dat: data w/ 2 columns of serve win probs
   # player1: Name of player 1 (aesthetic)
   # player2: Name of player 2 (aesthetic)
   # tournament: Name of tournament (aesthetic)
   
-  player1 <- levels(serve_win_df$Player)[1]
-  player2 <- levels(serve_win_df$Player)[2]
+  #player1 <- levels(serve_win_df$Player)[1]
+  #player2 <- levels(serve_win_df$Player)[2]
   
   posterior_serve_win_dat <- cbind(serve_win_df %>%
                                      filter(Player == player1) %>%
