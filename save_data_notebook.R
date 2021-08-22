@@ -12,4 +12,4 @@ table(wta_data$year)
 saveRDS(atp_data, file = "~/tennis_analytics/projects/point_IID/data/atp_data.rds")
 saveRDS(wta_data, file = "~/tennis_analytics/projects/point_IID/data/wta_data.rds")
 # Restore the object
-readRDS(file = "~/tennis_analytics/projects/point_IID/data/wta_data.rds")
+#readRDS(file = "~/tennis_analytics/projects/point_IID/data/wta_data.rds")

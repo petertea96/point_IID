@@ -11,12 +11,9 @@ atp_stan_data <- format_stan_data(relevant_data = atp_data)
 
 rstan_options(auto_write = FALSE)
 options(mc.cores = 4)
-model <- stan_model('./model/stan_model.stan')
-
-
-atp_model_fit <- sampling(model, data=atp_stan_data)
-
-saveRDS(atp_model_fit, file = "./model/atp_model.RDS")
+#model <- stan_model('./model/stan_model.stan')
+#atp_model_fit <- sampling(model, data=atp_stan_data)
+#saveRDS(atp_model_fit, file = "./model/atp_model.RDS")
 
 # -- Hacky way of fitting the STAN model ----
 library(cmdstanr)
