@@ -450,6 +450,86 @@ get_most_likely_match_scores <- function(serve_win_df, player1, player2){
 }
 
 
+get_most_likely_match_scores <- function(serve_win_df, player1, player2,
+                                         best_of_five=FALSE){
+  # posterior_serve_win_dat: data w/ 2 columns of serve win probs
+  # player1: Name of player 1 (aesthetic)
+  # player2: Name of player 2 (aesthetic)
+  # tournament: Name of tournament (aesthetic)
+  
+  #player1 <- levels(serve_win_df$Player)[1]
+  #player2 <- levels(serve_win_df$Player)[2]
+  
+  posterior_serve_win_dat <- cbind(serve_win_df %>%
+                                     filter(Player == player1) %>%
+                                     pull(p_spw), 
+                                   serve_win_df %>% 
+                                     filter(Player == player2) %>%
+                                     pull(p_spw))
+  
+  prob_p1_winning_a_set <- prob_win_set_a(posterior_serve_win_dat[,1],
+                                          posterior_serve_win_dat[,2])
+  prob_p2_winning_a_set <- 1- prob_p1_winning_a_set
+  # -- Note: This should also be: prob_win_set_a(posterior_serve_win_dat[,2],posterior_serve_win_dat[,1])
+  
+  if(!best_of_five){
+    # -- If Best of 3 Sets:
+    # -- Probability winning in 2 sets
+    p1_in_2_sets <- prob_p1_winning_a_set**2
+    p1_in_3_sets <- 2*(prob_p1_winning_a_set**2)*prob_p2_winning_a_set
+    
+    p2_in_2_sets <- prob_p2_winning_a_set**2
+    p2_in_3_sets <- 2*(prob_p2_winning_a_set**2)*prob_p1_winning_a_set
+    
+    likely_match_scores = data.frame(p1_score = c(2,2,0,1),
+                                     p2_score = c(0,1,2,2),
+                                     prob = c(mean(p1_in_2_sets),
+                                              mean(p1_in_3_sets),
+                                              mean(p2_in_2_sets),
+                                              mean(p2_in_3_sets))
+    )
+  } else {
+    # -- If Best of 5 Sets:
+    # -- Probability winning in 3 sets
+    p1_in_3_sets <- prob_p1_winning_a_set**3
+    p1_in_4_sets <- 3*(prob_p1_winning_a_set**3)*prob_p2_winning_a_set
+    p1_in_5_sets <- 6*(prob_p1_winning_a_set**3)*(prob_p2_winning_a_set**2)
+      
+      
+    p2_in_3_sets <- prob_p2_winning_a_set**3
+    p2_in_4_sets <- 3*(prob_p2_winning_a_set**3)*prob_p1_winning_a_set
+    p2_in_5_sets <- 6*(prob_p2_winning_a_set**3)*(prob_p1_winning_a_set**2)
+    
+    likely_match_scores = data.frame(p1_score = c(3, 3, 3, 0, 1, 2),
+                                     p2_score = c(0, 1, 2, 3, 3, 3),
+                                     prob = c(mean(p1_in_3_sets),
+                                              mean(p1_in_4_sets),
+                                              mean(p1_in_5_sets),
+                                              mean(p2_in_3_sets),
+                                              mean(p2_in_4_sets),
+                                              mean(p2_in_5_sets))
+    )
+    
+  }
+
+  
+  
+  likely_match_scores <- 
+    likely_match_scores%>%
+    arrange(desc(prob)) %>%
+    mutate(score = paste(p1_score, "-", p2_score)) %>%
+    mutate(score= forcats::fct_reorder(score, prob)) 
+  
+  colnames(likely_match_scores) <- c(sub( x=paste0(player1, '_score'), " ", "_"),
+                                     sub( x=paste0(player2, '_score'), " ", "_"),
+                                     'prob',
+                                     'score'
+  )
+  
+  return(likely_match_scores)
+  
+}
+
 ###########################################################################
 # Test
 

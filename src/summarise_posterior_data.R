@@ -4,7 +4,7 @@ get_serve_win_posterior_dataframe <-function(match_data,
                                              stan_results, 
                                              player_1_name = "Denis Shapovalov",
                                              player_2_name = "Frances Tiafoe",
-                                             tournament_name = "Canada Masters",
+                                             tournament_name = "canada masters",
                                              surface_name = "Hard"){
   
   # -- Get Player IDs

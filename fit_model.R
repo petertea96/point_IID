@@ -5,6 +5,7 @@ library(rstan)
 source('/Users/petertea/tennis_analytics/projects/point_IID/src/collect_data.R')
 atp_data <- readRDS(file = "/Users/petertea/tennis_analytics/projects/point_IID/data/atp_data.rds")
 
+levels(atp_data$tournament)
 
 # -- Convert to STAN FORMAT -----
 atp_stan_data <- format_stan_data(relevant_data = atp_data)
@@ -15,13 +16,13 @@ options(mc.cores = 4)
 #atp_model_fit <- sampling(model, data=atp_stan_data)
 #saveRDS(atp_model_fit, file = "./model/atp_model.RDS")
 
-# -- Hacky way of fitting the STAN model ----
+# -- A faster and lightweight way of fitting STAN models ----
 library(cmdstanr)
 library(data.table)
 
 stan.model <- cmdstan_model('/Users/petertea/tennis_analytics/projects/point_IID/model/stan_model.stan')
 
-# -- ADVI version the fastest MCMC to fit
+# -- ADVI version (an approximation algorithm)
 fit_atp_model <- stan.model$variational(
   data = atp_stan_data,
   tol_rel_obj = 0.001
