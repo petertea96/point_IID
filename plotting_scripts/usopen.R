@@ -30,6 +30,8 @@ serve_win_df <- get_serve_win_posterior_dataframe(match_data = atp_data,
                                                   tournament_name = my_tournament,
                                                   surface_name = my_surface)
 
+plot_background_col <- '#F5F5DC' # "#DBF5F0" is teal
+panel_background_col <- '#F5F5DC'
 # -- Predict Match -----
 is_best_of_5 <- TRUE
 match_win_probs <- prob_win_match_a(serve_win_df %>% 
@@ -52,12 +54,12 @@ most_likely_set_scores_df$score <- as.character(most_likely_set_scores_df$score)
 
 remain_prob <-
   most_likely_set_scores_df %>%
-  slice(12:nrow(most_likely_set_scores_df)) %>%
+  slice(10:nrow(most_likely_set_scores_df)) %>%
   #filter(prob < 0.05) %>%
   pull(prob) %>% sum()
 
 most_likely_set_scores_df_plot <- most_likely_set_scores_df %>%
-  slice(1:11) 
+  slice(1:9) 
 #filter(prob > 0.05)
 
 
@@ -95,13 +97,13 @@ most_likely_match_scores_df <- most_likely_match_scores_df %>%
 win_serve_plot <- 
   ggplot(serve_win_df, 
          aes(x = p_spw*100, fill =Player)) +
-  scale_fill_manual(values = c('#E67C7C', '#aaf0d1'), labels = c('Djokovic', 'Other') ) + 
-  geom_density(aes(y=..density..), alpha = 0.6)  +
-  ggtitle("Winning a point on Serve") + 
+  scale_fill_manual(values = c('#ffce42', '#02075d'), labels = c('Other', 'Djokovic') ) + 
+  geom_density(aes(y=..density..), alpha = 0.8)  +
+  ggtitle("Winning a Service point") + 
   #xlab("Prob(Win Serve Point)") + ylab("Posterior Density") +
   xlab("Probability") + ylab("") +
   theme_bw() +
-  theme(panel.background = element_rect(fill = "#F5F5DC", # background colour
+  theme(panel.background = element_rect(fill = panel_background_col, # background colour
                                         colour = "black", # border colour
                                         size = 0.5, linetype = "solid"),
         plot.title=element_text(size = rel(1),
@@ -115,21 +117,22 @@ win_serve_plot <-
         legend.key.size = unit(0.2, "cm"),
         legend.background = element_rect(fill = "#F5F5DC"),
         legend.key = element_rect(fill = "gray90"),
-        axis.title = element_text(face = "bold", size = 11),
+        axis.title = element_text(face = "bold", size = 11, family = 'Tahoma'),
         axis.text.x = element_text(colour = "black", 
                                    face = "bold",
                                    size = 10,
                                    family = 'Tahoma'),
         axis.ticks.y=element_blank(),
         axis.text.y = element_blank(),
-        plot.background = element_rect(fill = "#DBF5F0"))
+        plot.background = element_rect(fill = plot_background_col))
 
+win_serve_plot
 # -- Plot Prob(Player 1 Beats Player 2) ----
 #match_win_title <- paste0('Prob. ', p1_last, ' Wins Match')
 
 label_win <- data.frame(
   x = mean( match_win_probs*100) - 2.5, 
-  y =  0.06,
+  y =  0.01,
   label =  paste(round(mean( match_win_probs*100), 1), '%')
 )
 
@@ -137,7 +140,7 @@ match_win_title <- 'Djokovic Winning Match'
 match_win_plot <- 
   data_frame(val = match_win_probs*100) %>%
   ggplot(., aes(val)) + 
-  geom_density(alpha = 0.6, fill = "#aaf0d1")  +
+  geom_density(alpha = 0.8, fill = "#02075d")  +
   ggtitle(match_win_title)  +
   xlab('Probability') + ylab('') +
   geom_vline(xintercept = mean( match_win_probs*100),
@@ -146,9 +149,9 @@ match_win_plot <-
   geom_label(data = label_win, 
              aes(x = x, y = y,label = label),
              fontface =2,
-             fill='#aaf0d1') +
+             fill=plot_background_col) +
   theme_bw() +
-  theme(panel.background = element_rect(fill = "#F5F5DC", # background colour
+  theme(panel.background = element_rect(fill = panel_background_col, # background colour
                                         colour = "black", # border colour
                                         size = 0.5, linetype = "solid"),
         plot.title=element_text(size = rel(1),
@@ -167,18 +170,20 @@ match_win_plot <-
         axis.title = element_text(face = "bold", 
                                   size = 11,
                                   family = 'Tahoma'),
-        plot.background = element_rect(fill = "#DBF5F0"))
+        plot.background = element_rect(fill = plot_background_col))
+
+match_win_plot
 
 set_scores_plot <- 
   most_likely_set_scores_df_plot %>%
   #filter(prob > 0.015) %>%
   ggplot(aes(x = score, y = 100*prob)) +
-  geom_bar(stat = "identity", color="#00a86b", fill = "#9ED9CCFF", width = 0.8) +
+  geom_bar(stat = "identity", color="white", fill = "#02075d", width = 0.8) +
   #geom_text(aes(x = score, y = 100*prob + 0.9,
   #              label = paste(100*round(prob,3), "%", sep = ""))) +
   geom_label(aes(x = score, y = 100*prob + 0.9,
                  label = paste(100*round(prob,2), "%", sep = "")),
-             fill="#DBF5F0", 
+             fill=plot_background_col, 
              fontface = "bold",
              size=2.5,
              label.size = 0.1, 
@@ -189,7 +194,7 @@ set_scores_plot <-
   theme_bw() + 
   ylab("Probability") + 
   ggtitle("Predicted Set Scores") + 
-  theme(panel.background = element_rect(fill = "#F5F5DC", # background colour
+  theme(panel.background = element_rect(fill = panel_background_col, # background colour
                                         #light green: ##DBF5E8
                                         # light yellow: #F8FCCB
                                         colour = "black", # border colour
@@ -207,23 +212,25 @@ set_scores_plot <-
         axis.title.y=element_blank(),
         axis.title.x = element_text(colour = "black",
                                     face = "bold",
-                                    size = 12,
+                                    size = 11,
                                     family = 'Tahoma'),
         axis.text.x = element_text(colour = "black",
                                    face = "bold",
                                    size = 10,
                                    family = 'Tahoma'),
-        plot.background = element_rect(fill = "#DBF5F0"))
+        plot.background = element_rect(fill = plot_background_col))
+
+set_scores_plot
 
 match_scores_plot <- 
   most_likely_match_scores_df %>%
   ggplot(aes(x = match_label, y = 100*prob)) +
-  geom_bar(stat = "identity", color="#00a86b", fill = "#9ED9CCFF", width = 0.8)  +
+  geom_bar(stat = "identity", color="white", fill = "#02075d", width = 0.8)  +
   geom_label(aes(x = match_label, y = 100*prob + 0.9,
                  label = paste(100*round(prob,2), "%", sep = "")),
-             fill="#DBF5F0", 
+             fill=plot_background_col, 
              fontface = "bold",
-             size=3.5,
+             size=3,
              label.size = 0.2, 
              nudge_y = -3.5,
              nudge_x = 0) +
@@ -232,7 +239,7 @@ match_scores_plot <-
   theme_bw() + 
   ylab("Probability") + 
   ggtitle("Predicted Match Result") + 
-  theme(panel.background = element_rect(fill = "#F5F5DC", # background colour
+  theme(panel.background = element_rect(fill = panel_background_col, # background colour
                                         #light green: ##DBF5E8
                                         # light yellow: #F8FCCB
                                         colour = "black", # border colour
@@ -249,14 +256,15 @@ match_scores_plot <-
         axis.title.y=element_blank(),
         axis.title.x = element_text(colour = "black", 
                                     face = "bold",
-                                    size = 12,
+                                    size = 11,
                                     family = 'Tahoma'),
         axis.text.x = element_text(colour = "black", 
                                    face = "bold",
                                    size = 10,
                                    family = 'Tahoma'),
-        plot.background = element_rect(fill = "#DBF5F0"))
+        plot.background = element_rect(fill = plot_background_col))
 
+match_scores_plot
 
 get_png <- function(filename) {
   grid::rasterGrob(png::readPNG(filename), interpolate = TRUE)
@@ -270,28 +278,31 @@ tournament_logo <- get_png("./img/usopen.png")
 # --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### 
 # --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### 
 #my_title = paste(p1_last ,'vs.', p2_last, sep = ' ')
-my_title = 'Djokovic Chasing Season Grand Slam'
+my_title = 'Djokovic Chasing a Calander Grand Slam*'
+
 ( (match_scores_plot + match_win_plot) / (set_scores_plot + win_serve_plot)) + 
   inset_element(p = tournament_logo,
-                left = 0, right = 0.25, bottom = 2, top = 2.25, align_to = 'full') +
+                left = 0, right = 0.25, bottom = 1.85, top = 2.25, align_to = 'full') +
   theme_void()+
+  #left = 1.5, right = 0.25,
   inset_element(p = tournament_logo,
-                left = 1.5, right = 0.25, bottom = 2, top = 2.25, align_to = 'full') +
+                left = 0.75, right = 1, bottom = 1.85, top = 2.25, align_to = 'full') +
   theme_void() +
   plot_annotation(title = my_title,
-                  subtitle = 'US Open Championship Match 2021',
-                  caption = 'Model: @xenophar\nData: @tennisabstract',
-                  theme = theme( plot.title=element_text(size = rel(1.5),
+                  subtitle = '*First time since Rod Laver in 1969 (ATP)\n US Open Championship Match 2021',
+                  caption = 'Model: @xenophar; Data: @tennisabstract',
+                  theme = theme( plot.title=element_text(size = rel(1.7),
                                                          face = "bold", 
                                                          hjust = 0.5,
                                                          family = 'Tahoma'),
-                                 plot.subtitle = element_text(size = rel(1.25),
+                                 plot.subtitle = element_text(size = rel(1),
                                                               hjust = 0.5,
-                                                              family = 'Tahoma'),
+                                                              family = 'Tahoma',
+                                                              face = 'italic'),
                                  plot.caption = element_text(face = "italic",
                                                              family = 'Tahoma'),
                                  
-                                 plot.background = element_rect(fill = "#DBF5F0")) 
+                                 plot.background = element_rect(fill = plot_background_col)) 
   )
 
 ggsave('./plots/usopen_djokovic.jpg',
