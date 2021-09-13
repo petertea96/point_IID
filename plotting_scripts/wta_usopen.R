@@ -6,26 +6,26 @@ library(patchwork)
 source('src/summarise_posterior_data.R')
 source('src/winning_prob.R')
 
-atp_stan_results <- readRDS("./model/advi_atp_model.RDS")
-atp_data <- readRDS(file = "./data/atp_data.rds")
+wta_stan_results <- readRDS("./model/advi_wta_model.RDS")
+wta_data <- readRDS(file = "./data/wta_data.rds")
 
-#levels(atp_data$server) %>% sort()
-#levels(atp_data$tournament)
+#levels(wta_data$server) %>% sort()
+#levels(wta_data$tournament)
 
-p1_first <- 'Novak'
-p1_last <- 'Djokovic'
+p1_first <- 'Leylah Annie'
+p1_last <- 'Fernandez'
 player1 <- paste(p1_first, p1_last)
 
-p2_first <- 'Daniil'
-p2_last <- 'Medvedev'
+p2_first <- 'Emma'
+p2_last <- 'Raducanu'
 player2 <- paste(p2_first, p2_last)
 
 my_tournament <- 'us open'
 my_surface <- 'Hard'
 usopen_blue <- '#202691'
 usopen_yellow <- '#ffce42'
-serve_win_df <- get_serve_win_posterior_dataframe(match_data = atp_data, 
-                                                  stan_results = atp_stan_results, 
+serve_win_df <- get_serve_win_posterior_dataframe(match_data = wta_data, 
+                                                  stan_results = wta_stan_results, 
                                                   player_1_name = player1,
                                                   player_2_name = player2,
                                                   tournament_name = my_tournament,
@@ -34,7 +34,7 @@ serve_win_df <- get_serve_win_posterior_dataframe(match_data = atp_data,
 plot_background_col <- '#F5F5DC' # "#DBF5F0" is teal
 panel_background_col <- '#F5F5DC'
 # -- Predict Match -----
-is_best_of_5 <- TRUE
+is_best_of_5 <- FALSE
 match_win_probs <- prob_win_match_a(serve_win_df %>% 
                                       filter(Player == player1) %>%
                                       pull(p_spw), 
@@ -43,13 +43,12 @@ match_win_probs <- prob_win_match_a(serve_win_df %>%
                                       pull(p_spw),
                                     best_of_five =is_best_of_5)
 
+hist(match_win_probs)
 
 # -- Plot Most Likely Set Scores ----
 most_likely_set_scores_df <- get_most_likely_set_scores(serve_win_df = serve_win_df,
                                                         player1 = player1,
                                                         player2 = player2)
-
-
 
 most_likely_set_scores_df$score <- as.character(most_likely_set_scores_df$score)
 
@@ -79,14 +78,12 @@ most_likely_match_scores_df <- get_most_likely_match_scores(serve_win_df = serve
                                                             player1 = player1,
                                                             player2 = player2,
                                                             best_of_five = is_best_of_5 
-                                                            )
+)
 most_likely_match_scores_df
-most_likely_match_scores_df$match_label <- c('Novak in 4',
-                                             'Novak in 3',
-                                             'Novak in 5',
-                                             'Daniil in 5',
-                                             'Daniil in 4',
-                                             'Daniil in 3')
+most_likely_match_scores_df$match_label <- c('Fernandez in 2',
+                                             'Fernandez in 3',
+                                             'Raducanu in 2',
+                                             'Raducanu in 3')
 most_likely_match_scores_df <- most_likely_match_scores_df %>%
   mutate(match_label= forcats::fct_reorder(match_label, prob)) 
 
@@ -101,15 +98,15 @@ serve_win_df %>% group_by(Player) %>%
 
 
 label_serves <- data.frame(
-  x = c(60.82587, 63.34851),
-  y =  c(0.25, 0.25),
-  label =  c('61 %', '63 %')
+  x = c(55.90786, 57.29774),
+  y =  c(0.16, 0.19),
+  label =  c('56 %', '57 %')
 )
 
 win_serve_plot <- 
   ggplot(serve_win_df, 
          aes(x = p_spw*100, fill =Player)) +
-  scale_fill_manual(values = c('#ffce42', usopen_blue), labels = c('Medvedev', 'Djokovic') ) + 
+  scale_fill_manual(values = c('#ffce42', usopen_blue), labels = c('Raducanu', 'Fernandez') ) + 
   geom_density(aes(y=..density..), alpha = 0.9)  +
   ggtitle("Predicted Service point Win %") + 
   #xlab("Prob(Win Serve Point)") + ylab("Posterior Density") +
@@ -121,7 +118,7 @@ win_serve_plot <-
              colour=usopen_blue, linetype = "longdash"
   ) +
   geom_label(data = label_serves, 
-             aes(x = x, y = y,label = label),
+             aes(x = x+0.5, y = y,label = label),
              fontface =2,
              fill=plot_background_col) +
   theme_bw() +
@@ -132,7 +129,7 @@ win_serve_plot <-
                                 face = "bold",
                                 hjust = 0.5,
                                 family = 'Tahoma'),
-        legend.position = c(0.17, 0.86),
+        legend.position = c(0.16, 0.88),
         #legend.position = 'top',
         legend.title = element_blank(),
         legend.text = element_text(size = 8),
@@ -153,12 +150,12 @@ win_serve_plot
 #match_win_title <- paste0('Prob. ', p1_last, ' Wins Match')
 
 label_win <- data.frame(
-  x = mean( match_win_probs*100), 
-  y =  0.035,
-  label =  paste(round(mean( match_win_probs*100), 0), '%')
+  x = mean( match_win_probs*100) - 2.5, 
+  y =  0.04,
+  label =  paste(round(mean( match_win_probs*100), 1), '%')
 )
 
-match_win_title <- 'Djokovic Winning Match'
+match_win_title <- 'Leylah Winning Match'
 match_win_plot <- 
   data_frame(val = match_win_probs*100) %>%
   ggplot(., aes(val)) + 
@@ -292,6 +289,7 @@ get_png <- function(filename) {
   grid::rasterGrob(png::readPNG(filename), interpolate = TRUE)
 }
 
+
 tournament_logo <- get_png("./img/usopen.png")
 
 # --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### --- ### 
@@ -311,7 +309,7 @@ my_title = 'Djokovic Nearing a Calender Grand Slam*'
                 left = 0.75, right = 1, bottom = 1.85, top = 2.25, align_to = 'full') +
   theme_void() +
   plot_annotation(title = my_title,
-                  subtitle = "*To win all 4 slams in the same year: first time since Rod Laver in 1969 (ATP). What are Novak's\nchances of clinching the calendar slam at the US Open 2021\nChampionship Match against Daniil Medvedev?",
+                  subtitle = "*To win all 4 slams in the same year: first time since Rod Laver in 1969 (ATP). What are\nNovak's chances of clinching the calendar slam\nat the US Open 2021 Championship Match?",
                   caption = 'Model: @xenophar; Data: @tennisabstract',
                   theme = theme( plot.title=element_text(size = rel(1.9),
                                                          face = "bold", 
